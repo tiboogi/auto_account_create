@@ -4,25 +4,28 @@ from selenium.webdriver.chrome.options import Options
 import time
 
 data = []
-ErroList = []
+ErrorList = []
+
 with open('account.txt', 'r') as file:
     for line in file:
         username, email, password, a = line.replace("'", '').strip().split(',')
         data.append({'username': username, 'email': email, 'password': password})
+
+chrome_options = Options()
+chrome_options.add_experimental_option("detach", True)
+
 counter = 0
+skip = False
 for account in data:
-    chrome_options = Options()
-    chrome_options.add_experimental_option("detach", True)
-    # options.binary_location = "path to Google Chrome"
-    # chrome_driver_binary = "/path/to/chromedriver"  # Replace with the correct path to chromedriver
-    driver = webdriver.Chrome(chrome_options)
-    driver.get('https://twitter.com')
-    time.sleep(3)
-    # sign_up = driver.find_element(By.CSS_SELECTOR, 'a[href="/i/flow/signup"]')
-    # sign_up.click()
+    if not skip:
+        driver = webdriver.Chrome(chrome_options)
+        driver.get('https://twitter.com')
+        time.sleep(3)
+    skip = False
+    counter += 1
     print('email:'+str(account['email'])+'登入開始')
-    name = driver.find_element(By.NAME, "text")
-    name.send_keys(account['email'])
+    email = driver.find_element(By.NAME, "text")
+    email.send_keys(account['email'])
     buttons = driver.find_elements(By.CSS_SELECTOR, 'div[role="button"]')
     for j in buttons:
         if j.text == '下一步' or j.text == 'Next':
@@ -51,7 +54,8 @@ for account in data:
         print('輸入密碼')
     except:
         print(str(account['email']) + '發生問題')
-        ErroList.append(account['email'])
+        ErrorList.append(account['email'])
+        skip = True
         continue
 
     buttons = driver.find_elements(By.CSS_SELECTOR, 'div[role="button"]')
@@ -67,8 +71,6 @@ for account in data:
         print('驗證start')
     except:
         print('無需start')
-    # driver.close()
-print(ErroList)
-# # email = driver.find_element_by_name("name")
-# # email.send_keys('aaaa@gmail.com')
+print(f'共開啟{counter}個帳號,有{len(ErrorList)}個問題帳號：')
+print(ErrorList)
 
