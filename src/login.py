@@ -8,7 +8,7 @@ ErrorList = []
 
 with open('account.txt', 'r') as file:
     for line in file:
-        username, email, password, a = line.replace("'", '').strip().split(',')
+        username, email, password = line.replace("'", '').strip().split(',')
         data.append({'username': username, 'email': email, 'password': password})
 
 chrome_options = Options()
@@ -19,13 +19,13 @@ skip = False
 for account in data:
     if not skip:
         driver = webdriver.Chrome(chrome_options)
-        driver.get('https://twitter.com')
+        driver.get('https://twitter.com/i/flow/login')
         time.sleep(3)
     skip = False
     counter += 1
     print('email:'+str(account['email'])+'登入開始')
     email = driver.find_element(By.NAME, "text")
-    email.send_keys(account['email'])
+    email.send_keys(account['email'].replace('gamil', 'gmail'))
     buttons = driver.find_elements(By.CSS_SELECTOR, 'div[role="button"]')
     for j in buttons:
         if j.text == '下一步' or j.text == 'Next':
@@ -46,12 +46,11 @@ for account in data:
         time.sleep(2)
     except:
         print('無需輸入使用者名稱')
-    time.sleep(1)
+    time.sleep(2)
 
     try:
         pwd = driver.find_element(By.CSS_SELECTOR, 'input[autocomplete="current-password"]')
         pwd.send_keys(account['password'])
-        print('輸入密碼')
     except:
         print(str(account['email']) + '發生問題')
         ErrorList.append(account['email'])
